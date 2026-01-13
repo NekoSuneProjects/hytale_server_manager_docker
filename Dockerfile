@@ -1,32 +1,27 @@
 FROM node:20-bookworm
 
-# Set working directory
 WORKDIR /app
 
-# Install required system dependencies
+# System deps
 RUN apt-get update && apt-get install -y \
-    tar \
     curl \
+    tar \
     bash \
  && rm -rf /var/lib/apt/lists/*
 
-# Download and extract Hytale Server Manager
+# Download & extract release (extracts directly into /app)
 RUN curl -L \
     https://github.com/nebula-codes/hytale_server_manager/releases/download/v0.2.31/hytale-server-manager-0.2.31-linux.tar.gz \
-    -o hytale-server-manager.tar.gz \
- && tar -xzf hytale-server-manager.tar.gz \
- && rm hytale-server-manager.tar.gz
+    -o hsm.tar.gz \
+ && tar -xzf hsm.tar.gz \
+ && rm hsm.tar.gz
 
-WORKDIR /app/hytale-server-manager
-
-# Install application dependencies (NO sudo in Docker)
+# Install dependencies (no sudo in Docker)
 RUN chmod +x install.sh && ./install.sh
 
-# Create persistent directories
+# Persistent directories
 RUN mkdir -p data servers backups logs
 
-# Expose the app port
 EXPOSE 3001
 
-# Use environment variables at runtime
 CMD ["npm", "run", "start"]
